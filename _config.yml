@@ -75,3 +75,9 @@ deploy:
     github: git@github.com:EdisonXu/EdisonXu.github.io.git
     coding: git@git.coding.net:xeseo/xeseo.git
   branch: master
+
+# hexo sitemap网站地图
+sitemap:
+  path: sitemap.xml
+baidusitemap:
+  path: baidusitemap.xml
