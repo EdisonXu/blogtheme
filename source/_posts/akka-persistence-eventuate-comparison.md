@@ -15,7 +15,7 @@ Akka Persistence和Eventuate都是Scala写的，基于Akka的event-sourcing和CQ
 ## Command side
 在Akka Persistence中，command这边(CQRS中的C)是由`PersistentActor`s(PAs)来实现的，而Eventuate是由`EventSourcedActor`s(EAs)来实现的。他们的内部状态代表了应用的写入模型。
 
-PAs和EAs根据写入模型来对新的command进行校验，如果校验成功，则生成并持久化一条/多条后续会被handle来更新内部状态的事件。当crash或正常的应用重启,内部状态可以通过重演整个event log中已持久化的事件或从某一个snapshot开始重演，来恢复内部状态。PAs和EAs都支持至少送达一次到其他actor的机制, Akka Persistence提供了`AtleastOnceDelivery`来实现，而Eventuate则使用`ConfirmedDelivery`。
+PAs和EAs根据写入模型来对新的command进行校验，如果校验成功，则生成并持久化一条/多条event,后续用于更新内部状态。当crash或正常的应用重启,内部状态可以通过重演整个event log中已持久化的event或从某一个snapshot开始重演，来恢复内部状态。PAs和EAs都支持发送消息到其他actor的至少送达一次机制, Akka Persistence提供了`AtleastOnceDelivery`来实现，而Eventuate则使用`ConfirmedDelivery`。
 
 从这个角度来看，PAs和EAs非常相似。一个主要的区别是，PAs必须是单例，而EAs则可以是多分可复制的，并且可以并发对其修改。如果Akka Persistence意外地创建和更新了两个具有相同`persistenceId`的PA的实例，那么底层的event log将会被污染，要么是覆盖已有事件，要么是拼接进了彼此冲突的事件。Akka Persitence的event log是被设计为只容许一个并且不允许共享的event writer。
 
@@ -42,3 +42,5 @@ AKka Persistence的写可用性取决于底层的存储后端的写可用性。�
 这种限制导致Akka Persistence很难做到全局分布下应用的强一致性，并且完全的事件有序性还需要实现全局统一的协调处理。Eventuate在这点上做得要更好：它只要求在一个*location*上保持强一致性和事件的完全有序性。这个*location*可以是一个数据中心、一个(微)服务、分布式中的一个节点、单节点下的一个流程等。
 
 单location的Eventuate应用与Akka Persistence应用具有相同的一致性模型。但是，Eventuate应用通常会有多个location。单个location所产生的事件会异步地、可靠地复制到其他location。Eventuate定义了跨location的事件复制，并维护了因果事件的存储顺序，不同location的存储后端之间并不直接通信，所以，不同location可以使用不同的存储后端。
+
+Eventuate中在不同location间复制的event log被称之为*replicated event log*，它在某一个location上的代表被称为*local event log*。在不同*location*上的EA可以通过共享*replicated event log*来进行event交换，从而为EA状态的跨*location*复制提供了可能。EA和它们底层的event log
