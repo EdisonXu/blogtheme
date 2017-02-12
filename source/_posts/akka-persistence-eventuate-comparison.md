@@ -17,9 +17,9 @@ Akka Persistence和Eventuate都是Scala写的，基于Akka的event-sourcing和CQ
 
 PAs和EAs根据写入模型来对新的command进行校验，如果校验成功，则生成并持久化一条/多条event,后续用于更新内部状态。当crash或正常的应用重启,内部状态可以通过重演整个event log中已持久化的event或从某一个snapshot开始重演，来恢复内部状态。PAs和EAs都支持发送消息到其他actor的至少送达一次机制, Akka Persistence提供了`AtleastOnceDelivery`来实现，而Eventuate则使用`ConfirmedDelivery`。
 
-从这个角度来看，PAs和EAs非常相似。一个主要的区别是，PAs必须是单例，而EAs则可以是多分可复制的，并且可以并发对其修改。如果Akka Persistence意外地创建和更新了两个具有相同`persistenceId`的PA的实例，那么底层的event log将会被污染，要么是覆盖已有事件，要么是拼接进了彼此冲突的事件。Akka Persitence的event log是被设计为只容许一个并且不允许共享的event writer。
+从这个角度来看，PAs和EAs非常相似。一个主要的区别是，PAs必须是单例，而EAs则是可同时修改的多分拷贝。如果Akka Persistence意外地创建和更新了两个具有相同`persistenceId`的PA的实例，那么底层的event log将会被污染，要么是覆盖已有事件，要么把彼此冲突的事件拼接了起来（重演结果将不再准确）。Akka Persitence的event log设计只容许一个**writer**，并且event log本身是不能被共享的。
 
-在Eventtuate中，EAs可以共享同一个event log。基于事先自定义的事件路由规则，一个EA发出的的事件可以被另一个EA消费。换而言之，EA之间可以通过交换同一个共享的事件来进行协作，例如不同类型的EA组成一个分布式业务流程，或者多地址下相同类型的EA之间因为重现和更新内部状态而触发的状态复制。这里的多地址甚至可以是全局分布的(globally distributed)。多地址间的状态复制是异步的，具有相当可靠性。
+在Eventtuate中，EAs可以共享同一个event log。基于事先自定义的event路由规则，一个EA发出的的event可以被另一个EA消费。换而言之，基于这个共享的event log，EA之间可以进行协作，例如不同类型的EA一起组成一个分布式业务流程，或者多地址下相同类型的EA通过重建和更新内部状态而触发的状态复制。这里的多地址甚至可以是全局分布的(globally distributed)。多地址间的状态复制是异步的，具有相当可靠性。
 
 ## Event Relations
 在Akka Persistence中，每个PA产生的事件是有序的，然而不同PA产生的事件之间是没有任何关联性的。即使一个PA产生的事件是比另一个PA产生的事件早诞生，但是Akka Persistence是不记录这种先后顺序的。比如，PA<sub>1</sub>持久化了一个事件e<sub>1</sub>，然后发送了一个command给PA<sub>2</sub>，使得后者在处理该command时持久化了另一个事件e<sub>2</sub>，那么显然e<sub>1</sub>是先于e<sub>2</sub>的，但是系统本身无法通过对比e<sub>1</sub>和e<sub>2</sub>来决定他们之间的这种先后的关联性。
