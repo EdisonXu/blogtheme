@@ -12,7 +12,7 @@ timezone: Asia/Shanghai
 excerpt_depth: 3
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://edisonxu.github.io/
+url: http://edisonxu.org
 root: /
 permalink: :year/:month/:day/:title.html
 permalink_defaults:
