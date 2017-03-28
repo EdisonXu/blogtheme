@@ -19,7 +19,7 @@ customize:
         author: Edison Xu
         author_title: 懂得前端和移动，设计过架构，做过管理，也搞过自动化和运维，明白各种测试，知晓处理大数据。保持危机感和谦逊，方能更进一步
         location: 中国 - 上海
-        follow: https://github.com/EdisonXu
+        follow: http://edisonxu.org/about
     highlight: monokai
     sidebar: right # sidebar position, options: left, right
     thumbnail: true # enable posts thumbnail, options: true, false
@@ -52,11 +52,12 @@ search:
 # Comment
 comment:
     disqus:  # enter disqus shortname here
-    duoshuo: edisonxu # enter duoshuo shortname here
-    youyan: # enter youyan uid here
+    duoshuo: # enter duoshuo shortname here
+    youyan:  2128296 # enter youyan uid here
+    yungentie: #5b17b705ee04468c8699e7e4e10d97d6
 
 # Share
-share:  default # options: jiathis, bdshare, addtoany, default
+share:  bdshare # options: jiathis, bdshare, addtoany, default
 
 # Plugins
 plugins:
