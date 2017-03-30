@@ -4,15 +4,16 @@ var uglify = require('gulp-uglify');
 var htmlmin = require('gulp-htmlmin');
 var htmlclean = require('gulp-htmlclean');
 var imagemin = require('gulp-imagemin');
+var $ = require('gulp-load-plugins')();
 
 // 压缩css文件
-gulp.task('minify-css', function() {
+gulp.task('minify-css', ['cb'], function() {
   return gulp.src('./public/**/*.css')
   .pipe(minifycss())
   .pipe(gulp.dest('./public'));
 });
 // 压缩html文件
-gulp.task('minify-html', function() {
+gulp.task('minify-html', ['cb'], function() {
   return gulp.src('./public/**/*.html')
   .pipe(htmlclean())
   .pipe(htmlmin({
@@ -25,13 +26,13 @@ gulp.task('minify-html', function() {
   .pipe(gulp.dest('./public'))
 });
 // 压缩js文件
-gulp.task('minify-js', function() {
+gulp.task('minify-js', ['cb'], function() {
   return gulp.src('./public/**/*.js')
   .pipe(uglify())
   .pipe(gulp.dest('./public'));
 });
 // 压缩 public/uploads 目录内图片
-gulp.task('minify-images', function() {
+gulp.task('minify-images', ['cb'], function() {
     gulp.src('./public/css/images/*.*')
         .pipe(imagemin({
            optimizationLevel: 5, //类型：Number  默认：3  取值范围：0-7（优化等级）
@@ -41,7 +42,9 @@ gulp.task('minify-images', function() {
         }))
         .pipe(gulp.dest('./public/uploads'));
 });
+gulp.task('cb',$.shell.task('hexo clean && hexo g'));
+
 // 默认任务
 gulp.task('default', [
-  'minify-html','minify-css','minify-js','minify-images'
-]);
+  'cb','minify-html','minify-css','minify-js','minify-images'
+], $.shell.task('hexo d'));
