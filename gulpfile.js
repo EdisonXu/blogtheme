@@ -43,7 +43,9 @@ gulp.task('minify-images', ['cb'], function() {
         .pipe(gulp.dest('./public/uploads'));
 });
 gulp.task('cb',$.shell.task('hexo clean && hexo g'));
-
+gulp.task('mini', [
+  'minify-html','minify-css','minify-js','minify-images'
+]);
 // 默认任务
 gulp.task('default', [
   'cb','minify-html','minify-css','minify-js','minify-images'
